@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Category - AJAX CRUD & Phân Trang</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- jQuery 3.6.4 -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        var contextPath = "";
+    </script>
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .table-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .category-icon-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background-color: #fff;
+        }
+        .icon-placeholder {
+            width: 50px;
+            height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            color: #6c757d;
+            font-size: 1.5rem;
+        }
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+        .preview-box {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 2px dashed #0d6efd;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand text-warning" href="/">
+                <i class="fa-solid fa-bolt me-2"></i>AJAX RESTful Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fa-solid fa-house me-1"></i> Trang Chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active fw-bold text-white" href="/category">
+                            <i class="fa-solid fa-folder-tree me-1 text-primary"></i> Quản Lý Category
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/product">
+                            <i class="fa-solid fa-box-open me-1 text-success"></i> Quản Lý Product
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="/swagger-ui.html" target="_blank" class="btn btn-outline-warning btn-sm">
+                        <i class="fa-solid fa-file-code me-1"></i> Swagger 3 API Docs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid px-4 py-4">
+        <!-- Toast Notification Area -->
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+            <div id="liveToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMessage">
+                        Thao tác thành công!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-6">
+                <h3 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-folder-tree text-primary me-2"></i>Quản Lý Danh Mục (Category)
+                </h3>
+                <span class="text-muted small">Tải dữ liệu, tìm kiếm, phân trang và CRUD qua jQuery AJAX</span>
+            </div>
+            <div class="col-md-6 text-md-end mt-2 mt-md-0">
+                <button class="btn btn-primary shadow-sm" onclick="showCreateNewCategoryModal()">
+                    <i class="fa-solid fa-plus-circle me-1"></i> Thêm Category AJAX
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card table-card bg-white p-3 mb-4">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                        <input type="text" id="searchKeyword" class="form-control border-start-0" placeholder="Nhập tên danh mục cần tìm kiếm...">
+                        <button class="btn btn-primary" id="btnSearch">
+                            <i class="fa-solid fa-filter me-1"></i> Tìm Kiếm
+                        </button>
+                        <button class="btn btn-outline-secondary" id="btnReset" title="Đặt lại tìm kiếm">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-7 text-md-end">
+                    <div class="d-inline-flex align-items-center gap-2">
+                        <label for="pageSize" class="small text-muted mb-0">Số dòng/trang:</label>
+                        <select id="pageSize" class="form-select form-select-sm w-auto">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Table Card -->
+        <div class="card table-card bg-white mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="categoryTable">
+                        <thead class="table-light text-secondary">
+                            <tr>
+                                <th style="width: 80px;" class="text-center">ID</th>
+                                <th style="width: 100px;" class="text-center">Icon</th>
+                                <th>Tên Danh Mục</th>
+                                <th style="width: 140px;" class="text-center">Trạng Thái</th>
+                                <th style="width: 140px;" class="text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                            <!-- Populated via AJAX -->
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                    Đang tải dữ liệu danh mục...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Card Footer: Pagination Controls -->
+            <div class="card-footer bg-white py-3 border-top">
+                <div class="row align-items-center">
+                    <div class="col-sm-6 text-center text-sm-start text-muted small" id="paginationInfo">
+                        Đang nạp thông tin phân trang...
+                    </div>
+                    <div class="col-sm-6 mt-2 mt-sm-0">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm justify-content-center justify-content-sm-end mb-0" id="paginationList">
+                                <!-- Populated via AJAX -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 1: THÊM CATEGORY MỚI (Bootstrap Modal) -->
+    <!-- ======================================================== -->
+    <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="addCategory" method="post" onsubmit="return false;" enctype="multipart/form-data">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="createCategoryModalLabel">
+                            <i class="fa-solid fa-plus-circle me-2"></i>Thêm Danh Mục Mới (AJAX)
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="new_categoryname" class="form-label fw-bold">Tên Danh Mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="new_categoryname" name="categoryName" placeholder="Ví dụ: Điện thoại, Laptop..." required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_icon" class="form-label fw-bold">Icon / Hình Ảnh</label>
+                            <input type="file" class="form-control" id="new_icon" name="icon" accept="image/*">
+                            <img id="new_icon_preview" class="preview-box" alt="Icon preview">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_status" class="form-label fw-bold">Trạng Thái</label>
+                            <select class="form-select" id="new_status" name="status">
+                                <option value="1" selected>Hoạt động (Hiển thị)</option>
+                                <option value="0">Tạm khóa (Ẩn)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary" id="btnSubmitAdd">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> Lưu Danh Mục
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL 2: CẬP NHẬT CATEGORY (Bootstrap Modal) -->
+    <!-- ======================================================== -->
+    <div class="modal fade" id="updateCategoryInfoModal" tabindex="-1" aria-labelledby="updateCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="updateCategory" method="post" onsubmit="return false;" enctype="multipart/form-data">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="updateCategoryModalLabel">
+                            <i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Danh Mục (AJAX)
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Thẻ tóm tắt thông tin hiện tại theo slide -->
+                        <div class="card mb-3 bg-light border-0">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div id="updateCategoryInfoModalIcon"></div>
+                                    <div>
+                                        <div class="fw-bold" id="updateCategoryInfoModalId">ID: --</div>
+                                        <div class="text-muted" id="updateCategoryInfoModalName">Tên: --</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="categoryId_up" name="categoryId">
+
+                        <div class="mb-3">
+                            <label for="categoryName_up" class="form-label fw-bold">Tên Danh Mục Mới <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categoryName_up" name="categoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="icon_up" class="form-label fw-bold">Đổi Icon / Hình Ảnh Mới</label>
+                            <input type="file" class="form-control" id="icon_up" name="icon" accept="image/*">
+                            <small class="text-muted d-block mt-1">Để trống nếu muốn giữ nguyên icon hiện tại.</small>
+                            <img id="icon_up_preview" class="preview-box" alt="Icon update preview">
+                        </div>
+                        <div class="mb-3">
+                            <label for="status_up" class="form-label fw-bold">Trạng Thái</label>
+                            <select class="form-select" id="status_up" name="status">
+                                <option value="1">Hoạt động (Hiển thị)</option>
+                                <option value="0">Tạm khóa (Ẩn)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold" id="btnSubmitUpdate">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Cập Nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ======================================================== -->
+    <!-- AJAX JAVASCRIPT XỬ LÝ CRUD & PHÂN TRANG -->
+    <!-- ======================================================== -->
+    <script type="text/javascript">
+        var currentPage = 0;
+        var currentSize = 5;
+        var currentKeyword = "";
+
+        // Thông báo Toast helper
+        function showToast(message, isSuccess = true) {
+            var toastEl = document.getElementById('liveToast');
+            toastEl.className = 'toast align-items-center text-white border-0 ' + (isSuccess ? 'bg-success' : 'bg-danger');
+            $('#toastMessage').text(message);
+            var toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+        }
+
+        // Tải danh sách Categories qua AJAX có phân trang và tìm kiếm
+        function loadCategoryData(page = 0, size = 5, keyword = "") {
+            currentPage = page;
+            currentSize = size;
+            currentKeyword = keyword;
+
+            $('#categoryTableBody').html(
+                '<tr><td colspan="5" class="text-center py-4 text-muted">' +
+                '<div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang nạp dữ liệu...</td></tr>'
+            );
+
+            $.ajax({
+                url: contextPath + '/api/category/page',
+                type: 'GET',
+                data: {
+                    page: page,
+                    size: size,
+                    keyword: keyword,
+                    sortBy: 'categoryId',
+                    sortDir: 'desc'
+                },
+                dataType: 'json',
+                success: function(res) {
+                    if (res && res.status && res.body) {
+                        var pageData = res.body;
+                        var list = pageData.content || [];
+                        var totalElements = pageData.totalElements || 0;
+                        var totalPages = pageData.totalPages || 0;
+
+                        renderTable(list);
+                        renderPagination(pageData);
+                    } else {
+                        $('#categoryTableBody').html('<tr><td colspan="5" class="text-center py-4 text-danger">Không lấy được dữ liệu!</td></tr>');
+                    }
+                },
+                error: function(err) {
+                    console.error("Error loading categories:", err);
+                    $('#categoryTableBody').html('<tr><td colspan="5" class="text-center py-4 text-danger">Lỗi kết nối máy chủ!</td></tr>');
+                }
+            });
+        }
+
+        // Render HTML các hàng trong bảng
+        function renderTable(list) {
+            if (!list || list.length === 0) {
+                $('#categoryTableBody').html(
+                    '<tr><td colspan="5" class="text-center py-4 text-muted">' +
+                    '<i class="fa-solid fa-inbox me-2 fa-lg"></i>Không tìm thấy danh mục nào phù hợp</td></tr>'
+                );
+                return;
+            }
+
+            var tr = [];
+            for (var i = 0; i < list.length; i++) {
+                var cat = list[i];
+                var iconHtml = '';
+                if (cat.icon && cat.icon.trim() !== '') {
+                    var imgSrc = cat.icon.startsWith('http') ? cat.icon : ('/admin/categories/images/' + cat.icon);
+                    iconHtml = '<img src="' + imgSrc + '" class="category-icon-thumb" alt="icon" onerror="this.onerror=null; this.src=\'https://placehold.co/50x50?text=Icon\';">';
+                } else {
+                    iconHtml = '<div class="icon-placeholder"><i class="fa-solid fa-folder"></i></div>';
+                }
+
+                var statusBadge = (cat.status === 1 || cat.status === null)
+                    ? '<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Hoạt động</span>'
+                    : '<span class="badge bg-secondary"><i class="fa-solid fa-lock me-1"></i>Tạm ẩn</span>';
+
+                var escapedName = $('<div>').text(cat.categoryName || '').html();
+                var rawIcon = cat.icon || '';
+
+                tr.push('<tr id="cat-row-' + cat.categoryId + '">');
+                tr.push('<td class="text-center fw-bold text-secondary">' + cat.categoryId + '</td>');
+                tr.push('<td class="text-center">' + iconHtml + '</td>');
+                tr.push('<td class="fw-semibold text-dark">' + escapedName + '</td>');
+                tr.push('<td class="text-center">' + statusBadge + '</td>');
+                tr.push('<td class="text-center">');
+                tr.push('<button class="btn btn-outline-warning btn-sm action-btn me-1 edit-cat-btn" ' +
+                        'data-id="' + cat.categoryId + '" ' +
+                        'data-name="' + escapedName + '" ' +
+                        'data-icon="' + rawIcon + '" ' +
+                        'data-status="' + (cat.status !== undefined ? cat.status : 1) + '" ' +
+                        'title="Chỉnh sửa"><i class="fa-solid fa-pencil"></i></button>');
+                tr.push('<button class="btn btn-outline-danger btn-sm action-btn delete-cat-btn" ' +
+                        'data-id="' + cat.categoryId + '" ' +
+                        'data-name="' + escapedName + '" ' +
+                        'title="Xóa"><i class="fa-solid fa-trash-can"></i></button>');
+                tr.push('</td>');
+                tr.push('</tr>');
+            }
+            $('#categoryTableBody').html(tr.join(''));
+        }
+
+        // Render phân trang AJAX
+        function renderPagination(pageData) {
+            var totalElements = pageData.totalElements;
+            var totalPages = pageData.totalPages;
+            var number = pageData.number; // 0-based
+            var size = pageData.size;
+
+            if (totalElements === 0) {
+                $('#paginationInfo').text('Không có bản ghi nào.');
+                $('#paginationList').empty();
+                return;
+            }
+
+            var startRecord = number * size + 1;
+            var endRecord = Math.min((number + 1) * size, totalElements);
+            $('#paginationInfo').html('Hiển thị <strong>' + startRecord + ' - ' + endRecord + '</strong> trong tổng số <strong>' + totalElements + '</strong> danh mục (Trang <strong>' + (number + 1) + '</strong>/' + totalPages + ')');
+
+            var pagHtml = [];
+
+            // Nút Previous
+            if (number === 0) {
+                pagHtml.push('<li class="page-item disabled"><span class="page-link">&laquo; Trước</span></li>');
+            } else {
+                pagHtml.push('<li class="page-item"><a class="page-link" href="#" onclick="loadCategoryData(' + (number - 1) + ', ' + size + ', \'' + currentKeyword + '\'); return false;">&laquo; Trước</a></li>');
+            }
+
+            // Các nút số trang
+            for (var p = 0; p < totalPages; p++) {
+                if (totalPages > 7) {
+                    if (p > 1 && p < number - 1 && p !== 0) {
+                        if (p === 2) pagHtml.push('<li class="page-item disabled"><span class="page-link">...</span></li>');
+                        continue;
+                    }
+                    if (p > number + 1 && p < totalPages - 2 && p !== totalPages - 1) {
+                        if (p === totalPages - 3) pagHtml.push('<li class="page-item disabled"><span class="page-link">...</span></li>');
+                        continue;
+                    }
+                }
+
+                if (p === number) {
+                    pagHtml.push('<li class="page-item active"><span class="page-link">' + (p + 1) + '</span></li>');
+                } else {
+                    pagHtml.push('<li class="page-item"><a class="page-link" href="#" onclick="loadCategoryData(' + p + ', ' + size + ', \'' + currentKeyword + '\'); return false;">' + (p + 1) + '</a></li>');
+                }
+            }
+
+            // Nút Next
+            if (number >= totalPages - 1) {
+                pagHtml.push('<li class="page-item disabled"><span class="page-link">Sau &raquo;</span></li>');
+            } else {
+                pagHtml.push('<li class="page-item"><a class="page-link" href="#" onclick="loadCategoryData(' + (number + 1) + ', ' + size + ', \'' + currentKeyword + '\'); return false;">Sau &raquo;</a></li>');
+            }
+
+            $('#paginationList').html(pagHtml.join(''));
+        }
+
+        // Mở modal thêm mới
+        function showCreateNewCategoryModal() {
+            $('#addCategory')[0].reset();
+            $('#new_icon_preview').hide().attr('src', '');
+            $('#createCategoryModal').modal('show');
+        }
+
+        // Mở modal cập nhật
+        function showEditCategoryModal(categoryId, categoryName, icon, status) {
+            $('#updateCategoryInfoModalId').text('Category ID: ' + categoryId);
+            $('#updateCategoryInfoModalName').text('Tên: ' + categoryName);
+
+            var iconHtml = '';
+            if (icon && icon.trim() !== '') {
+                var imgSrc = icon.startsWith('http') ? icon : ('/admin/categories/images/' + icon);
+                iconHtml = '<img src="' + imgSrc + '" class="category-icon-thumb" alt="icon">';
+            } else {
+                iconHtml = '<div class="icon-placeholder"><i class="fa-solid fa-folder"></i></div>';
+            }
+            $('#updateCategoryInfoModalIcon').html(iconHtml);
+
+            $('#categoryId_up').val(categoryId);
+            $('#categoryName_up').val(categoryName);
+            $('#status_up').val(status !== undefined ? status : 1);
+            $('#icon_up').val('');
+            $('#icon_up_preview').hide().attr('src', '');
+
+            $('#updateCategoryInfoModal').modal('show');
+        }
+
+        // DOM Ready Initialization
+        $(document).ready(function() {
+            // Tải danh mục ban đầu
+            loadCategoryData(0, currentSize, "");
+
+            // Tìm kiếm khi click nút hoặc nhấn Enter
+            $('#btnSearch').click(function() {
+                var kw = $('#searchKeyword').val().trim();
+                loadCategoryData(0, currentSize, kw);
+            });
+
+            $('#searchKeyword').keypress(function(e) {
+                if (e.which === 13) {
+                    $('#btnSearch').click();
+                }
+            });
+
+            // Reset tìm kiếm
+            $('#btnReset').click(function() {
+                $('#searchKeyword').val('');
+                loadCategoryData(0, currentSize, "");
+            });
+
+            // Đổi số dòng / trang
+            $('#pageSize').change(function() {
+                currentSize = parseInt($(this).val());
+                loadCategoryData(0, currentSize, currentKeyword);
+            });
+
+            // Preview ảnh khi chọn file trong form Thêm
+            $('#new_icon').change(function() {
+                var file = this.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#new_icon_preview').attr('src', e.target.result).show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#new_icon_preview').hide().attr('src', '');
+                }
+            });
+
+            // Preview ảnh khi chọn file trong form Sửa
+            $('#icon_up').change(function() {
+                var file = this.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#icon_up_preview').attr('src', e.target.result).show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#icon_up_preview').hide().attr('src', '');
+                }
+            });
+
+            // Xử lý Submit Form THÊM Category bằng AJAX
+            $("form#addCategory").submit(function(e) {
+                e.preventDefault();
+                var nameVal = $('#new_categoryname').val().trim();
+                if (!nameVal) {
+                    alert('Vui lòng nhập tên danh mục!');
+                    return;
+                }
+
+                var formData = new FormData(this);
+                var btn = $('#btnSubmitAdd');
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...');
+
+                $.ajax({
+                    url: contextPath + '/api/category/addCategory',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function(data) {
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> Lưu Danh Mục');
+                        if (data && data.status) {
+                            $('#createCategoryModal').modal('hide');
+                            showToast(data.message || 'Thêm danh mục thành công!');
+                            loadCategoryData(0, currentSize, currentKeyword);
+                        } else {
+                            alert(data.message || 'Thêm thất bại!');
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> Lưu Danh Mục');
+                        var msg = 'Lỗi thêm danh mục!';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        alert(msg);
+                    }
+                });
+            });
+
+            // Xử lý Click nút Sửa trên bảng
+            $(document).on('click', '.edit-cat-btn', function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var icon = $(this).data('icon');
+                var status = $(this).data('status');
+                showEditCategoryModal(id, name, icon, status);
+            });
+
+            // Xử lý Submit Form CẬP NHẬT Category bằng AJAX
+            $("form#updateCategory").submit(function(e) {
+                e.preventDefault();
+                var nameVal = $('#categoryName_up').val().trim();
+                if (!nameVal) {
+                    alert('Vui lòng nhập tên danh mục!');
+                    return;
+                }
+
+                var formData = new FormData(this);
+                var btn = $('#btnSubmitUpdate');
+                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Đang cập nhật...');
+
+                $.ajax({
+                    url: contextPath + '/api/category/updateCategory',
+                    type: 'PUT',
+                    data: formData,
+                    dataType: 'json',
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function(data) {
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-pen-to-square me-1"></i> Cập Nhật');
+                        if (data && data.status) {
+                            $('#updateCategoryInfoModal').modal('hide');
+                            showToast(data.message || 'Cập nhật danh mục thành công!');
+                            loadCategoryData(currentPage, currentSize, currentKeyword);
+                        } else {
+                            alert(data.message || 'Cập nhật thất bại!');
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-pen-to-square me-1"></i> Cập Nhật');
+                        var msg = 'Lỗi cập nhật danh mục!';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            msg = xhr.responseJSON.message;
+                        }
+                        alert(msg);
+                    }
+                });
+            });
+
+            // Xử lý Click nút XÓA Category bằng AJAX
+            $(document).on('click', '.delete-cat-btn', function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+
+                if (confirm('Bạn có chắc chắn muốn xóa danh mục: "' + name + '" (ID: ' + id + ') không?')) {
+                    var rowEl = $('#cat-row-' + id);
+                    $.ajax({
+                        url: contextPath + '/api/category/deleteCategory?categoryId=' + id,
+                        type: 'DELETE',
+                        dataType: 'json',
+                        success: function(res) {
+                            rowEl.fadeOut('slow', function() {
+                                $(this).remove();
+                                showToast('Đã xóa danh mục thành công!');
+                                loadCategoryData(currentPage, currentSize, currentKeyword);
+                            });
+                        },
+                        error: function(xhr) {
+                            var msg = 'Lỗi khi xóa danh mục!';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            }
+                            alert(msg);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
