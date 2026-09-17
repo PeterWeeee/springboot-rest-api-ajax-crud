@@ -4,7 +4,7 @@ Dự án phát triển ứng dụng web với **Spring Boot** kết nối cơ s�
 
 ---
 
-## 🚀 Tính Năng Nổi Bật
+## Tính Năng Nổi Bật
 
 - **RESTful API hoàn chỉnh**:
   - CRUD cho **Category** (Thêm, Sửa, Xóa, Xem chi tiết, Phân trang và Tìm kiếm theo tên).
@@ -24,7 +24,7 @@ Dự án phát triển ứng dụng web với **Spring Boot** kết nối cơ s�
 
 ---
 
-## 🛠️ Công Nghệ Sử Dụng (Tech Stack)
+## Công Nghệ Sử Dụng (Tech Stack)
 
 | Thành phần | Công nghệ | Phiên bản |
 | :--- | :--- | :--- |
@@ -38,11 +38,10 @@ Dự án phát triển ứng dụng web với **Spring Boot** kết nối cơ s�
 | **View Engine** | Thymeleaf | 3.x |
 | **Frontend Scripting** | jQuery | 3.6.4 |
 | **CSS Framework** | Bootstrap | 5.3.3 |
-| **Icon Library** | FontAwesome | 6.5.1 |
 
 ---
 
-## 📂 Cấu Trúc Thư Mục
+## Cấu Trúc Thư Mục
 
 ```text
 springboot1-7/
@@ -72,7 +71,7 @@ springboot1-7/
 
 ---
 
-## ⚙️ Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
+## Hướng Dẫn Cài Đặt & Chạy Ứng Dụng
 
 ### 1. Khởi tạo Cơ Sở Dữ Liệu SQL Server
 Chạy file script [`database/init_database.sql`](database/init_database.sql) trong SQL Server Management Studio (SSMS) hoặc qua command line:
@@ -100,7 +99,7 @@ java -jar target/springboot1-7-1.0.jar
 
 ---
 
-## 🌐 Danh Sách Đường Dẫn Truy Cập
+## Danh Sách Đường Dẫn Truy Cập
 
 | Chức năng | Đường dẫn (URL) |
 | :--- | :--- |
@@ -111,7 +110,7 @@ java -jar target/springboot1-7-1.0.jar
 
 ---
 
-## 📡 Danh Sách RESTful API
+## Danh Sách RESTful API
 
 ### 1. Category Endpoints (`/api/category`)
 - `GET /api/category`: Lấy danh sách tất cả Category.

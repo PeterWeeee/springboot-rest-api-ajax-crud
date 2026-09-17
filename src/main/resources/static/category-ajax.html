@@ -6,8 +6,6 @@
     <title>Quản Lý Category - AJAX CRUD & Phân Trang</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome 6 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- jQuery 3.6.4 -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
@@ -44,16 +42,7 @@
             background-color: #e9ecef;
             border-radius: 8px;
             color: #6c757d;
-            font-size: 1.5rem;
-        }
-        .action-btn {
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
+            font-size: 0.8rem;
         }
         .preview-box {
             max-width: 120px;
@@ -72,7 +61,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
         <div class="container-fluid px-4">
             <a class="navbar-brand text-warning" href="/">
-                <i class="fa-solid fa-bolt me-2"></i>AJAX RESTful Dashboard
+                AJAX RESTful Dashboard
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
                 <span class="navbar-toggler-icon"></span>
@@ -80,22 +69,22 @@
             <div class="collapse navbar-collapse" id="navContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="fa-solid fa-house me-1"></i> Trang Chủ</a>
+                        <a class="nav-link" href="/">Trang Chủ</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active fw-bold text-white" href="/category">
-                            <i class="fa-solid fa-folder-tree me-1 text-primary"></i> Quản Lý Category
+                            Quản Lý Category
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/product">
-                            <i class="fa-solid fa-box-open me-1 text-success"></i> Quản Lý Product
+                            Quản Lý Product
                         </a>
                     </li>
                 </ul>
                 <div class="d-flex">
                     <a href="/swagger-ui.html" target="_blank" class="btn btn-outline-warning btn-sm">
-                        <i class="fa-solid fa-file-code me-1"></i> Swagger 3 API Docs
+                        Swagger 3 API Docs
                     </a>
                 </div>
             </div>
@@ -119,13 +108,13 @@
         <div class="row mb-3 align-items-center">
             <div class="col-md-6">
                 <h3 class="fw-bold text-dark mb-0">
-                    <i class="fa-solid fa-folder-tree text-primary me-2"></i>Quản Lý Danh Mục (Category)
+                    Quản Lý Danh Mục (Category)
                 </h3>
                 <span class="text-muted small">Tải dữ liệu, tìm kiếm, phân trang và CRUD qua jQuery AJAX</span>
             </div>
             <div class="col-md-6 text-md-end mt-2 mt-md-0">
                 <button class="btn btn-primary shadow-sm" onclick="showCreateNewCategoryModal()">
-                    <i class="fa-solid fa-plus-circle me-1"></i> Thêm Category AJAX
+                    Thêm Category AJAX
                 </button>
             </div>
         </div>
@@ -135,13 +124,13 @@
             <div class="row g-2 align-items-center">
                 <div class="col-md-6 col-lg-5">
                     <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                        <input type="text" id="searchKeyword" class="form-control border-start-0" placeholder="Nhập tên danh mục cần tìm kiếm...">
+                        <span class="input-group-text bg-light">Tìm kiếm</span>
+                        <input type="text" id="searchKeyword" class="form-control" placeholder="Nhập tên danh mục...">
                         <button class="btn btn-primary" id="btnSearch">
-                            <i class="fa-solid fa-filter me-1"></i> Tìm Kiếm
+                            Tìm Kiếm
                         </button>
                         <button class="btn btn-outline-secondary" id="btnReset" title="Đặt lại tìm kiếm">
-                            <i class="fa-solid fa-rotate-right"></i>
+                            Đặt lại
                         </button>
                     </div>
                 </div>
@@ -169,7 +158,7 @@
                                 <th style="width: 100px;" class="text-center">Icon</th>
                                 <th>Tên Danh Mục</th>
                                 <th style="width: 140px;" class="text-center">Trạng Thái</th>
-                                <th style="width: 140px;" class="text-center">Thao Tác</th>
+                                <th style="width: 160px;" class="text-center">Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody id="categoryTableBody">
@@ -211,7 +200,7 @@
                 <form id="addCategory" method="post" onsubmit="return false;" enctype="multipart/form-data">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="createCategoryModalLabel">
-                            <i class="fa-solid fa-plus-circle me-2"></i>Thêm Danh Mục Mới (AJAX)
+                            Thêm Danh Mục Mới (AJAX)
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -236,7 +225,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                         <button type="submit" class="btn btn-primary" id="btnSubmitAdd">
-                            <i class="fa-solid fa-floppy-disk me-1"></i> Lưu Danh Mục
+                            Lưu Danh Mục
                         </button>
                     </div>
                 </form>
@@ -253,12 +242,12 @@
                 <form id="updateCategory" method="post" onsubmit="return false;" enctype="multipart/form-data">
                     <div class="modal-header bg-warning text-dark">
                         <h5 class="modal-title" id="updateCategoryModalLabel">
-                            <i class="fa-solid fa-pen-to-square me-2"></i>Cập Nhật Danh Mục (AJAX)
+                            Cập Nhật Danh Mục (AJAX)
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Thẻ tóm tắt thông tin hiện tại theo slide -->
+                        <!-- Thẻ tóm tắt thông tin hiện tại -->
                         <div class="card mb-3 bg-light border-0">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center gap-3">
@@ -294,7 +283,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                         <button type="submit" class="btn btn-warning text-dark fw-bold" id="btnSubmitUpdate">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> Cập Nhật
+                            Cập Nhật
                         </button>
                     </div>
                 </form>
@@ -348,9 +337,6 @@
                     if (res && res.status && res.body) {
                         var pageData = res.body;
                         var list = pageData.content || [];
-                        var totalElements = pageData.totalElements || 0;
-                        var totalPages = pageData.totalPages || 0;
-
                         renderTable(list);
                         renderPagination(pageData);
                     } else {
@@ -368,8 +354,7 @@
         function renderTable(list) {
             if (!list || list.length === 0) {
                 $('#categoryTableBody').html(
-                    '<tr><td colspan="5" class="text-center py-4 text-muted">' +
-                    '<i class="fa-solid fa-inbox me-2 fa-lg"></i>Không tìm thấy danh mục nào phù hợp</td></tr>'
+                    '<tr><td colspan="5" class="text-center py-4 text-muted">Không tìm thấy danh mục nào phù hợp</td></tr>'
                 );
                 return;
             }
@@ -382,12 +367,12 @@
                     var imgSrc = cat.icon.startsWith('http') ? cat.icon : ('/admin/categories/images/' + cat.icon);
                     iconHtml = '<img src="' + imgSrc + '" class="category-icon-thumb" alt="icon" onerror="this.onerror=null; this.src=\'https://placehold.co/50x50?text=Icon\';">';
                 } else {
-                    iconHtml = '<div class="icon-placeholder"><i class="fa-solid fa-folder"></i></div>';
+                    iconHtml = '<div class="icon-placeholder">[Trống]</div>';
                 }
 
                 var statusBadge = (cat.status === 1 || cat.status === null)
-                    ? '<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Hoạt động</span>'
-                    : '<span class="badge bg-secondary"><i class="fa-solid fa-lock me-1"></i>Tạm ẩn</span>';
+                    ? '<span class="badge bg-success">Hoạt động</span>'
+                    : '<span class="badge bg-secondary">Tạm ẩn</span>';
 
                 var escapedName = $('<div>').text(cat.categoryName || '').html();
                 var rawIcon = cat.icon || '';
@@ -398,16 +383,16 @@
                 tr.push('<td class="fw-semibold text-dark">' + escapedName + '</td>');
                 tr.push('<td class="text-center">' + statusBadge + '</td>');
                 tr.push('<td class="text-center">');
-                tr.push('<button class="btn btn-outline-warning btn-sm action-btn me-1 edit-cat-btn" ' +
+                tr.push('<button class="btn btn-outline-warning btn-sm me-1 edit-cat-btn" ' +
                         'data-id="' + cat.categoryId + '" ' +
                         'data-name="' + escapedName + '" ' +
                         'data-icon="' + rawIcon + '" ' +
                         'data-status="' + (cat.status !== undefined ? cat.status : 1) + '" ' +
-                        'title="Chỉnh sửa"><i class="fa-solid fa-pencil"></i></button>');
-                tr.push('<button class="btn btn-outline-danger btn-sm action-btn delete-cat-btn" ' +
+                        'title="Chỉnh sửa">Sửa</button>');
+                tr.push('<button class="btn btn-outline-danger btn-sm delete-cat-btn" ' +
                         'data-id="' + cat.categoryId + '" ' +
                         'data-name="' + escapedName + '" ' +
-                        'title="Xóa"><i class="fa-solid fa-trash-can"></i></button>');
+                        'title="Xóa">Xóa</button>');
                 tr.push('</td>');
                 tr.push('</tr>');
             }
@@ -487,7 +472,7 @@
                 var imgSrc = icon.startsWith('http') ? icon : ('/admin/categories/images/' + icon);
                 iconHtml = '<img src="' + imgSrc + '" class="category-icon-thumb" alt="icon">';
             } else {
-                iconHtml = '<div class="icon-placeholder"><i class="fa-solid fa-folder"></i></div>';
+                iconHtml = '<div class="icon-placeholder">[Trống]</div>';
             }
             $('#updateCategoryInfoModalIcon').html(iconHtml);
 
@@ -568,7 +553,7 @@
 
                 var formData = new FormData(this);
                 var btn = $('#btnSubmitAdd');
-                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...');
+                btn.prop('disabled', true).text('Đang lưu...');
 
                 $.ajax({
                     url: contextPath + '/api/category/addCategory',
@@ -579,7 +564,7 @@
                     contentType: false,
                     processData: false,
                     success: function(data) {
-                        btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> Lưu Danh Mục');
+                        btn.prop('disabled', false).text('Lưu Danh Mục');
                         if (data && data.status) {
                             $('#createCategoryModal').modal('hide');
                             showToast(data.message || 'Thêm danh mục thành công!');
@@ -589,7 +574,7 @@
                         }
                     },
                     error: function(xhr) {
-                        btn.prop('disabled', false).html('<i class="fa-solid fa-floppy-disk me-1"></i> Lưu Danh Mục');
+                        btn.prop('disabled', false).text('Lưu Danh Mục');
                         var msg = 'Lỗi thêm danh mục!';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             msg = xhr.responseJSON.message;
@@ -619,7 +604,7 @@
 
                 var formData = new FormData(this);
                 var btn = $('#btnSubmitUpdate');
-                btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span>Đang cập nhật...');
+                btn.prop('disabled', true).text('Đang cập nhật...');
 
                 $.ajax({
                     url: contextPath + '/api/category/updateCategory',
@@ -630,7 +615,7 @@
                     contentType: false,
                     processData: false,
                     success: function(data) {
-                        btn.prop('disabled', false).html('<i class="fa-solid fa-pen-to-square me-1"></i> Cập Nhật');
+                        btn.prop('disabled', false).text('Cập Nhật');
                         if (data && data.status) {
                             $('#updateCategoryInfoModal').modal('hide');
                             showToast(data.message || 'Cập nhật danh mục thành công!');
@@ -640,7 +625,7 @@
                         }
                     },
                     error: function(xhr) {
-                        btn.prop('disabled', false).html('<i class="fa-solid fa-pen-to-square me-1"></i> Cập Nhật');
+                        btn.prop('disabled', false).text('Cập Nhật');
                         var msg = 'Lỗi cập nhật danh mục!';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             msg = xhr.responseJSON.message;
